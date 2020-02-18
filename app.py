@@ -44,7 +44,7 @@ def handle_message(event):
     print(nameid)
     print(uid)
     print(event.message.text)
-    usespeak=str(event.message.text). #使用者講的話
+    usespeak=str(event.message.text).strip() #使用者講的話
    
 #####################################系統功能按鈕##############################
     if usespeak == "小琳":
