@@ -64,21 +64,7 @@ def handle_message(event):
 
     if usespeak in ["小琳謝謝","小琳謝了"]:
         line_bot_api.push_message(uid,TextSendMessage("奴才謝主隆恩啊"))
-
-
-
-for i,key in enumerate(output):
-    output[key] = content[i]
-
-    output = {"產品":"",
-     "上價":"",
-     "中價":"",
-     "下價":"",
-     "平均價":"",
-     "跟前一日交易日比較%":"",
-     "交易量(公斤)":"",
-     "跟前一日交易日比較%":""}
-    line_bot_api.push_message(uid,TextSendMessage("我不懂你的意思"))                 
+            
 
 import os
 if __name__ == "__main__":
