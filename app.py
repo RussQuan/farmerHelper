@@ -16,8 +16,8 @@ myUserID = "Uebe55ea95668d1268b787fdf1d5706ea"
 
 
 # 監聽所有來自 /callback 的 Post Request
-@app.route("/callback", methods=['get'])
-def callback():
+@app.route("/index", methods=['GET'])
+def Hello():
     return 'SUCCESS!'
 
 # 監聽所有來自 /callback 的 Post Request
