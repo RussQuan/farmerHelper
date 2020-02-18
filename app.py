@@ -2,7 +2,6 @@ from flask import Flask, request, abort
 from linebot import (LineBotApi, WebhookHandler, exceptions)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import *
-import re
 import json
 
 from crawl_price import search
@@ -14,6 +13,12 @@ line_bot_api = LineBotApi('Y8OBiHs434eEjg5zG8q6x6N42U+ze3sY3swkk5ip+7cnhzK4whnbG
 handler = WebhookHandler('96cbce74cecbac73b60970df05e33954')
 #my USER ID
 myUserID = "Uebe55ea95668d1268b787fdf1d5706ea"
+
+
+# 監聽所有來自 /callback 的 Post Request
+@app.route("/callback", methods=['get'])
+def callback():
+    return 'SUCCESS!'
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
