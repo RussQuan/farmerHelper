@@ -17,8 +17,18 @@ def parse_date():
 USER_AGENT = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}
 
 def search(date,market_name="台北一",product_name="朝天椒"):
+    """成功爬取回傳列表 否則字串"""
     product_no = get_product_no(product_name)
+
+    if isinstance(product_no, list):
+        msg = f"{product_name}有好多種呀 請主子責罰\n"+"\n".join(product_no)
+        return msg
+
     market_no = get_market_no(market_name)
+    if not market_no:
+        msg = f"找不到{market_name}，請主子責罰！"
+        return msg
+
     print(product_no,market_no)
     
     url = "https://amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
@@ -61,4 +71,4 @@ def get_product_no(name):
 
 def get_market_no(name):
     matched = [p for p in MARKET_NO_NAME if name in p]
-    return [item[0] for item in matched][0]
+    return [item[0] for item in matched][0] if matched else None
