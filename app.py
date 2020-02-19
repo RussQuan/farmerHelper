@@ -49,27 +49,37 @@ def handle_message(event):
     print(nameid)
     print(uid)
     print(event.message.text)
-    usespeak=str(event.message.text).strip() #使用者講的話
+    userspeak=str(event.message.text).strip() #使用者講的話
    
 #####################################系統功能按鈕##############################
-    if usespeak == "小琳":
+    if userspeak == "小琳":
         line_bot_api.push_message(uid,TextSendMessage("主子有什麼吩咐?"))
 
-    if userspeak.startswith("查"):
+    elif userspeak.startswith("查"):
+        line_bot_api.push_message(uid,TextSendMessage("讓奴才找找.."))
         date = userspeak.split(" ")[1]
         product_name = userspeak.split(" ")[2]
 
-        content = search(date,market_name="台北一",product_name=product_name)
         item = ["產品","上價","中價","下價","平均價","跟前一日交易日比較%","交易量(公斤)","跟前一日交易日比較%"]
+        content = search(date,market_name="台北一",product_name=product_name)
+        print (item,content)
+        if len(item)!=len(content):
+            line_bot_api.push_message(uid,TextSendMessage("奴才辦事無力，請秉誠主子查查原因!"))
+            return "ok"
+
         output = ""
         for i,it in enumerate(item):
             output = output+f'{it}:{content[i]}\n'
 
         line_bot_api.push_message(uid,TextSendMessage(output))
 
-    if usespeak in ["小琳謝謝","小琳謝了"]:
-        line_bot_api.push_message(uid,TextSendMessage("奴才謝主隆恩啊"))
-            
+    elif userspeak in ["小琳謝謝","小琳謝了"]:
+        line_bot_api.push_message(uid,TextSendMessage("奴才不敢當"))
+
+    elif userspeak in ["小琳退下"]:
+        line_bot_api.push_message(uid,TextSendMessage("渣"))
+
+
 
 import os
 if __name__ == "__main__":

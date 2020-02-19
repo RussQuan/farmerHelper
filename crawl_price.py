@@ -5,9 +5,16 @@ import urllib.parse
 import requests.packages.urllib3
 requests.packages.urllib3.disable_warnings()
 from data import MARKET_NO_NAME,PRODUCT_NO_NAME
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 def parse_date():
     pass
+
+USER_AGENT = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}
 
 def search(date,market_name="台北一",product_name="朝天椒"):
     product_no = get_product_no(product_name)
@@ -15,7 +22,6 @@ def search(date,market_name="台北一",product_name="朝天椒"):
     print(product_no,market_no)
     
     url = "https://amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
-    USER_AGENT = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}
     
     values = {}
     values['__EVENTTARGET'] = "ctl00$contentPlaceHolder$btnQuery"
@@ -29,19 +35,19 @@ def search(date,market_name="台北一",product_name="朝天椒"):
     
     data = urllib.parse.urlencode(values).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers = USER_AGENT)
-    response = urllib.request.urlopen(req, data).read().decode("utf-8")   
+    response = urllib.request.urlopen(req, data,context=ctx).read().decode("utf-8")   
     soup = BeautifulSoup(response)
     table = soup.find_all("table")[-1]
     content = table.find(class_="main_main").get_text().split("\n")
     content = [s.strip()  for s in content if s ]
-    return content[1:-1]
+    return content
 
 def get_viewstate_and_event():
     url = "https://amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
-    req = requests.get(url)
+    req = requests.get(url,headers = USER_AGENT,verify=False)
     data = req.text
+    bs = BeautifulSoup(data,features="html.parser")
 
-    bs = BeautifulSoup(data)
     return (bs.find("input", {"id": "__VIEWSTATE"}).attrs['value'],
             bs.find("input", {"id": "__EVENTVALIDATION"}).attrs['value'])
 
