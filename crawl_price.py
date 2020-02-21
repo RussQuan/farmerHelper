@@ -1,4 +1,3 @@
-import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
@@ -11,25 +10,13 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-def parse_date():
-    pass
 
 USER_AGENT = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}
 
-def search(date,market_name="台北一",product_name="朝天椒"):
+def search(date,market_no=104,product_no="FV4"):
     """成功爬取回傳列表 否則字串"""
-    product_no = get_product_no(product_name)
 
-    if isinstance(product_no, list):
-        msg = f"{product_name}有好多種呀 請主子責罰\n"+"\n".join(product_no)
-        return msg
-
-    market_no = get_market_no(market_name)
-    if not market_no:
-        msg = f"找不到{market_name}，請主子責罰！"
-        return msg
-
-    print(product_no,market_no)
+    print(date,product_no,market_no)
     
     url = "https://amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
     
@@ -48,7 +35,10 @@ def search(date,market_name="台北一",product_name="朝天椒"):
     response = urllib.request.urlopen(req, data,context=ctx).read().decode("utf-8")   
     soup = BeautifulSoup(response)
     table = soup.find_all("table")[-1]
-    content = table.find(class_="main_main").get_text().split("\n")
+    content = table.find(class_="main_main")
+    if not content:
+        return "當天沒有交易紀錄 請主子恕罪"
+    content = content.get_text().split("\n")
     content = [s.strip()  for s in content if s ]
     return content
 
@@ -64,11 +54,8 @@ def get_viewstate_and_event():
 def get_product_no(name):
     """回傳字串代號 或者細項列表"""
     matched = [p for p in PRODUCT_NO_NAME if name in p]
-    if len(matched)>2:
+    if len(matched)>=2:
         return [item[-1] for item in matched]
     else:
         return matched[0][0]
 
-def get_market_no(name):
-    matched = [p for p in MARKET_NO_NAME if name in p]
-    return [item[0] for item in matched][0] if matched else None
