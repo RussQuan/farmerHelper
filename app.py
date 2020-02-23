@@ -11,9 +11,10 @@ from linebot.models import (
 )
 from datetime import datetime
 from crawl_price import search
+from crawl_weather import get_weather
 import re
 import jieba
-from data import MARKET_NO_NAME,PRODUCT_NO_NAME
+from data import MARKET_NO_NAME,PRODUCT_NO_NAME,COUNTRIES
 jieba.load_userdict('dict.txt')
 
 app = Flask(__name__)
@@ -55,6 +56,13 @@ def handle_join(event):
             event.reply_token,
             TextMessage(text=newcoming_text)
         )
+
+def parse_country(cut_text):
+    for text in cut_text:
+        if text in COUNTRIES:
+            return text
+    return None
+
 
 def is_product(name):
     if [ p for p in PRODUCT_NO_NAME if name in p]:
@@ -126,6 +134,26 @@ def handle_message(event):
     userspeak=str(event.message.text).strip() #使用者講的話
     cut_text = jieba.lcut(userspeak, cut_all=False)
 
+
+    if "天氣" in cut_text:
+        country = parse_country(cut_text)
+        if not country:
+            country = "雲林縣"
+            
+        country = country.replace("台","臺")
+        period_list = get_weather(country)
+        if period_list:
+            info = ["From","To","PoP","MinT","MaxT"]
+            output = ""
+            for period in period_list:
+                for i,ele in enumerate(period):
+                   output += f"{info[i]}：{ele}\n"
+                output += "\n"
+            push(uid,  output)
+        else:
+            push(uid,  "查無紀錄，主人饒命阿!!")
+
+
     if "價格" in cut_text:
         product_no = parse_product(cut_text)
         if isinstance(product_no, list):
@@ -164,39 +192,18 @@ def handle_message(event):
             push(uid,output)
             return 
 
+    elif userspeak == "小琳":
+        push(uid, "主子有什麼吩咐?")
 
-    if userspeak == "可以幫我嗎":
+    elif userspeak == "可以幫我嗎":
         push(uid, "奴才甘願為主人肝腦塗地！")
 
-    elif userspeak.startswith("查"):
-        push(uid, "讓奴才找找...")
-        date = userspeak.split(" ")[1]
-        product_name = userspeak.split(" ")[2]
-
-        item = ["產品","上價","中價","下價","平均價","跟前一日交易日比較%","交易量(公斤)","跟前一日交易日比較%"]
-        content = search(date,market_no="109",product_no="FV4")
-        
-        #content字串表示有誤
-        if isinstance(content, str):
-            push(uid,content)
-            return
-
-        print (item,content)
-        if len(item)!=len(content):
-            push(uid, "奴才辦事無力，請秉誠主子查查原因!")
-            return "ok"
-
-        output = ""
-        for i,it in enumerate(item):
-            output = output+f'{it}:{content[i]}\n'
-
-        push(uid,output)
 
     elif userspeak in ["謝謝","謝了"]:
         push(uid,"奴才不敢當")
 
     elif userspeak in ["小琳再見"]:
-        push(uid,"青山不改，綠水長流，咱們後會有期。")
+        push(uid,"奴才告退")
 
 
 
