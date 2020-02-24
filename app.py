@@ -18,13 +18,12 @@ from data import MARKET_NO_NAME,PRODUCT_NO_NAME,COUNTRIES
 jieba.load_userdict('dict.txt')
 
 app = Flask(__name__)
+config = configparser.ConfigParser()
+config.read("config.ini")
 
-# Channel Access Token
-line_bot_api = LineBotApi('ruvd8tZiM9BiKr9rpqgetNJyeCEgEM8l4UbdjMrR7CM+DXQrsMVYAbgAdWZYLHnKPmxbLq5jjESMBhX14eGYMQtSMs5h3xQi8g/4uCxHeUqFxhHF14UVfN//lldsftfPp20IeFERPPlmejHp3lyH1AdB04t89/1O/w1cDnyilFU=')
-# Channel Secret
-handler = WebhookHandler('77ad723a1f785d8445f5e093e7250751')
-#my USER ID
-myUserID = "Uebe55ea95668d1268b787fdf1d5706ea"
+
+line_bot_api = LineBotApi(config.get('line_bot','Channel_Access_Token'))
+handler = WebhookHandler(config.get('line_bot','Channel_Secret'))
 
 
 # 監聽所有來自 /callback 的 Post Request
